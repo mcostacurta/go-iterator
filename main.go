@@ -1,35 +1,37 @@
 package main
 
-import "fmt"
-
-type IntCollection struct {
-	data []int
-}
-
-func NewIntCollection(data []int) *IntCollection {
-	return &IntCollection{data: data}
-}
-
-// Iterator returns an iterator function for the collection
-func (c *IntCollection) Iterator() func() (int, bool) {
-	index := 0
-	return func() (int, bool) {
-		if index < len(c.data) {
-			value := c.data[index]
-			index++
-			return value, true
-		}
-		return 0, false // No more items
-	}
-}
+import (
+	"fmt"
+	"maps"
+	"slices"
+	"sync"
+)
 
 func main() {
-	collection := NewIntCollection([]int{1, 2, 3, 4, 5})
+	//Range iterator using concurrent safe map
+	fmt.Printf("--> Range iterator using concurrent safe map\n")
+	var syncMap sync.Map
 
-	iter := collection.Iterator()
+	syncMap.Store("k1", "v1")
+	syncMap.Store("k2", "v2")
+	syncMap.Store("k3", "v3")
 
-	// Use the iterator in a for-range loop
-	for value, ok := iter(); ok; value, ok = iter() {
-		fmt.Println(value)
+	for key, value := range syncMap.Range {
+		fmt.Println(key, value)
+	}
+
+	//Slice iterator
+	fmt.Printf("\n--> Slice iterator sorted\n")
+	slice := []string{"d", "a", "e", "b", "z", "c"}
+	sortedSlice := slices.Sorted(slices.Values(slice))
+	for key, value := range slices.All(sortedSlice) {
+		fmt.Printf("%d:%v ", key, value)
+	}
+
+	//Map iterator
+	fmt.Printf("\n\n--> Map iterator\n")
+	mapIterator := map[string]int{"a": 1, "b": 2, "c": 3, "d": 4}
+	for key, value := range maps.All(mapIterator) {
+		fmt.Printf("%v:%v ", key, value)
 	}
 }
